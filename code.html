@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Statistics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .number {
+            font-size: 2em;
+            color: #007BFF;
+            margin: 20px 0;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            margin: 10px 0;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        select {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BTech Field of Study Survey</h1>
+        <form id="surveyForm">
+            <label>
+                Did you settle in your field of study pursued in BTech?
+                <select name="settled" id="settled">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </label>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h1>Survey Statistics</h1>
+        <p>Number of students settled in their field of study pursued in BTech:</p>
+        <div class="number" id="settledCount">Loading...</div>
+        <p>Total responses:</p>
+        <div class="number" id="totalResponses">Loading...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/students')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('settledCount').innerText = data.settled;
+                    document.getElementById('totalResponses').innerText = data.total;
+                })
+                .catch(error => {
+                    console.error('Error fetching the data:', error);
+                    document.getElementById('settledCount').innerText = 'Error';
+                    document.getElementById('totalResponses').innerText = 'Error';
+                });
+
+            document.getElementById('surveyForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const settled = document.getElementById('settled').value;
+
+                fetch('/api/submit-survey', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        settled: settled
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/thank-you.html';
+                    } else {
+                        console.error('Error submitting the survey:', response);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting the survey:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
